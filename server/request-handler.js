@@ -12,7 +12,7 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var requestHandler = function(request, response) {
+exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -28,6 +28,35 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
+  var messBlob = "./classes/messages/messBlob.txt";
+  var fs = require("fs");
+  var url = require("url");  //<--- use this later when the URL becomes more complex (routing?)
+
+  if(request.method === "GET"){
+    var url_parts = url.parse(request.url, true);
+    console.log("Request URL parsed is " + url_parts.pathname);
+    response.write('<html><div>THE STRING TO SEND BACK!</div></html>');
+    response.end("it's response end")
+    // debugger;
+  }
+  if(request.method === "POST"){
+    var stuff = '';
+    request.on('data', function(data){
+      stuff += data;
+    })
+    request.on('end', function () {
+        console.log('POSTed: ' + stuff);
+        console.log('the stuff is ' + stuff);
+        stuff += ";";
+        fs.appendFile(messBlob, stuff, function (err) {
+      if (err) throw err;
+      console.log('The "stuff to append" was appended to file!');
+      });
+    }) 
+    /* STUFF IS EMPTY AT THIS POINT */
+    // console.log('the stuff is ' + stuff);
+
+  }
 
   // The outgoing status.
   var statusCode = 200;
@@ -52,7 +81,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+  response.end("Hello, Shanny!");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
